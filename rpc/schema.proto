@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package hyperspace_mirror;
+import "hrpc.proto";
+
+message MirrorRequest {
+  required bytes key = 1;
+  // TODO: Not necessary when structure detection is added.
+  optional string type = 2;
+}
+
+message MirrorStatus {
+  required bytes key = 1;
+  required bool mirroring = 2;
+}
+
+message ListResponse {
+  repeated string mirroring = 1;
+}
+
+service Mirror {
+  option (hrpc.service) = 1;
+
+  // Methods
+  rpc Mirror (MirrorRequest) returns (MirrorStatus) { option (hrpc.method) = 1; }
+  rpc Unmirror (MirrorRequest) returns (MirrorStatus) { option (hrpc.method) = 2; }
+  rpc Status (MirrorRequest) returns (MirrorStatus) { option (hrpc.method) = 3; }
+  rpc List (hrpc.Void) returns (ListResponse) { option (hrpc.method) = 4; }
+  rpc Stop (hrpc.Void) returns (hrpc.Void) { option (hrpc.method) = 5; }
+
+  // Events
+}

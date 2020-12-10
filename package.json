@@ -4,6 +4,7 @@
   "description": "A Hyperspace service with a RPC API for mirroring.",
   "main": "index.js",
   "scripts": {
+    "build": "hrpc rpc/schema.proto --rpc=rpc/index.js --messages=rpc/messages.js",
     "test": "standard && tape test/*.js"
   },
   "repository": {
@@ -20,5 +21,17 @@
   "bugs": {
     "url": "https://github.com/andrewosh/hyper-mirroring-service/issues"
   },
-  "homepage": "https://github.com/andrewosh/hyper-mirroring-service#readme"
+  "homepage": "https://github.com/andrewosh/hyper-mirroring-service#readme",
+  "devDependencies": {
+    "standard": "^16.0.3",
+    "tape": "^5.0.1"
+  },
+  "dependencies": {
+    "@hyperspace/client": "^1.18.0",
+    "hrpc": "^2.2.0",
+    "hrpc-runtime": "^2.1.1",
+    "hyperbee": "^1.0.0",
+    "hyperdrive": "^10.18.0",
+    "nanoresource-promise": "^2.0.0"
+  }
 }
