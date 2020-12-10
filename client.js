@@ -44,7 +44,7 @@ module.exports = class HyperspaceMirroringClient {
 
   status (key, type) {
     if (typeof key === 'string') key = Buffer.from(key, 'hex')
-    return this._client.status({ key, type })
+    return this._client.mirror.status({ key, type })
   }
 
   async list () {
