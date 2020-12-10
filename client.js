@@ -47,8 +47,9 @@ module.exports = class HyperspaceMirroringClient {
     return this._client.status({ key, type })
   }
 
-  list () {
-    return this._client.mirror.list()
+  async list () {
+    const rsp = await this._client.mirror.list()
+    return rsp.mirroring
   }
 
   mirror (key, type) {
