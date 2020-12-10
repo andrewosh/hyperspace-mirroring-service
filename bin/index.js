@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const minimist = require('minimist')
-const { Server, Client } = require('.')
+const { Server, Client } = require('..')
 
 const argv = minimist(process.argv.slice(2), {
   string: ['host', 'port'],
@@ -9,7 +9,7 @@ const argv = minimist(process.argv.slice(2), {
     port: 'p'
   }
 })
-const version = `hyperspace-mirror/${require('./package.json').version} ${process.platform}-${process.arch} node-${process.version}`
+const version = `hyperspace-mirror/${require('../package.json').version} ${process.platform}-${process.arch} node-${process.version}`
 const help = `The Hyperspace mirroring service.
 ${version}
 
