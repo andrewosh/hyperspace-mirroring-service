@@ -11,11 +11,12 @@ message MirrorRequest {
 
 message MirrorStatus {
   required bytes key = 1;
-  required bool mirroring = 2;
+  required string type = 2;
+  required bool mirroring = 3;
 }
 
 message ListResponse {
-  repeated string mirroring = 1;
+  repeated MirrorStatus mirroring = 1;
 }
 
 service Mirror {

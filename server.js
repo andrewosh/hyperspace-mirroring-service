@@ -7,8 +7,10 @@ const hyperdrive = require('hyperdrive')
 const RPC = require('./rpc')
 const getNetworkOptions = require('./rpc/socket.js')
 
-const DB_NAMESPACE = 'hyperspace-mirroring-service/db'
+const DB_NAMESPACE = 'hyperspace-mirroring-service'
 const DB_VERSION = 'v1'
+const CORES_SUB = 'cores'
+const TYPES_SUB = 'types'
 
 module.exports = class MirroringService extends Nanoresource {
   constructor (opts = {}) {
@@ -38,11 +40,13 @@ module.exports = class MirroringService extends Nanoresource {
     await this.hsClient.ready()
     this._corestore = this.hsClient.corestore(DB_NAMESPACE)
 
-    this.db = new Hyperbee(this._corestore.default(), {
+    const rootDb = new Hyperbee(this._corestore.default(), {
       keyEncoding: 'utf-8',
       valueEncoding: 'json'
     }).sub(DB_VERSION)
-    await this.db.ready()
+    await rootDb.ready()
+    this.coresDb = rootDb.sub(CORES_SUB)
+    this.typesDb = rootDb.sub(TYPES_SUB)
 
     await this.server.listen(this._socketOpts)
     return this._restartMirroring()
@@ -51,7 +55,6 @@ module.exports = class MirroringService extends Nanoresource {
   async _close () {
     await this.server.close()
     for (const { core, request } of  this.downloads.values()) {
-      console.log('undownloading:', core.key.toString('hex'))
       core.undownload(request)
     }
     this.downloads.clear()
@@ -61,10 +64,11 @@ module.exports = class MirroringService extends Nanoresource {
 
   // Mirroring Methods
 
-  async _getDriveCores (key) {
+  async _getDriveCores (key, replicate) {
     const drive = hyperdrive(this._corestore, key)
     drive.on('error', noop)
     await drive.promises.ready()
+    if (replicate) await this.hsClient.replicate(drive.metadata)
     return new Promise((resolve, reject) => {
       drive.getContent((err, content) => {
         if (err) return reject(err)
@@ -74,8 +78,7 @@ module.exports = class MirroringService extends Nanoresource {
   }
 
   async _restartMirroring () {
-    for await (const { key } of this.db.createReadStream()) {
-      console.log('mirroring key:', key.toString('utf8'))
+    for await (const { key } of this.coresDb.createReadStream()) {
       await this._mirrorCore(key)
     }
   }
@@ -90,15 +93,13 @@ module.exports = class MirroringService extends Nanoresource {
       request: core.download()
     })
     // TODO: What metadata should we store?
-    await this.db.put(keyString, {})
+    await this.coresDb.put(keyString, {})
     this.mirroring.add(keyString)
   }
 
   // TODO: Make mount-aware
   async _mirrorDrive (key) {
-    const keyString = (typeof key === 'string') ? key : key.toString('hex')
-    const { content, metadata } = await this._getDriveCores(key)
-    await this.hsClient.replicate(metadata)
+    const { content, metadata } = await this._getDriveCores(key, true)
     return Promise.all([
       this._mirrorCore(metadata.key, metadata, true),
       this._mirrorCore(content.key, content, true)
@@ -107,7 +108,6 @@ module.exports = class MirroringService extends Nanoresource {
 
   async _unmirrorCore (key, noUnreplicate) {
     const keyString = (typeof key === 'string') ? key : key.toString('hex')
-    console.log('unmirroring core:', keyString)
     if (!this.downloads.has(keyString)) return
     const { core, request } = this.downloads.get(keyString)
     if (!noUnreplicate) await this.hsClient.network.configure(core.discoveryKey, {
@@ -116,13 +116,12 @@ module.exports = class MirroringService extends Nanoresource {
     core.undownload(request)
     this.downloads.delete(keyString)
     this.mirroring.delete(keyString)
-    return this.db.del(keyString)
+    return this.coresDb.del(keyString)
   }
 
   // TODO: Make mount-aware
   async _unmirrorDrive (key) {
     const keyString = (typeof key === 'string') ? key : key.toString('hex')
-    console.log('unmirroring drive:', keyString)
     if (!this.downloads.has(keyString)) return
     const { metadata, content } = await this._getDriveCores(key)
     await this.hsClient.network.configure(metadata.discoveryKey, {
@@ -138,14 +137,16 @@ module.exports = class MirroringService extends Nanoresource {
     if (typeof key === 'string') key = Buffer.from(key, 'hex')
     if (!type || type === 'hypercore') await this._mirrorCore(key)
     else if (type === 'hyperdrive') await this._mirrorDrive(key)
-    return this._status({ key })
+    await this.typesDb.put(key.toString('hex'), type)
+    return this._status({ key, type })
   }
 
   async _unmirror ({ key, type }) {
     if (typeof key === 'string') key = Buffer.from(key, 'hex')
     if (!type || type === 'hypercore') await this._unmirrorCore(key)
     else if (type === 'hyperdrive') await this._unmirrorDrive(key)
-    return this._status({ key })
+    await this.typesDb.del(key.toString('hex'))
+    return this._status({ key, type })
   }
 
   // Info Methods
@@ -154,13 +155,22 @@ module.exports = class MirroringService extends Nanoresource {
     const keyString = (typeof key === 'string') ? key : key.toString('hex')
     return {
       key,
+      type,
       mirroring: this.mirroring.has(keyString)
     }
   }
 
-  _list () {
+  async _list () {
+    const mirroring = []
+    for await (const { key, value: type } of this.typesDb.createReadStream()) {
+      mirroring.push({
+        type,
+        key: Buffer.from(key, 'hex'),
+        mirroring: true
+      })
+    }
     return {
-      mirroring: [...this.mirroring.keys()]
+      mirroring
     }
   }
 

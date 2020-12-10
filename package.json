@@ -30,7 +30,7 @@
     "@hyperspace/client": "^1.18.0",
     "hrpc": "^2.2.0",
     "hrpc-runtime": "^2.1.1",
-    "hyperbee": "^1.0.0",
+    "hyperbee": "^1.0.1",
     "hyperdrive": "^10.18.0",
     "nanoresource-promise": "^2.0.0"
   }

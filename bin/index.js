@@ -30,7 +30,7 @@ async function main () {
 
   const s = new Server({
     host: argv.host,
-    port: argv.port,
+    port: argv.port
   })
   global.hyperspaceMirror = s
 
@@ -48,7 +48,6 @@ async function main () {
   try {
     await s.open()
   } catch (err) {
-    console.log('ERR:', err)
     const c = new Client()
     let mirroring
 
@@ -56,7 +55,6 @@ async function main () {
       mirroring = await c.list()
     } catch (_) {}
 
-    console.log('mirroring:', mirroring)
     if (mirroring) {
       console.log('Mirroring server is already running')
       process.exit(1)

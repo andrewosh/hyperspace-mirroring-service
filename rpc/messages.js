@@ -122,6 +122,9 @@ function defineMirrorStatus () {
     if (!defined(obj.key)) throw new Error("key is required")
     var len = encodings.bytes.encodingLength(obj.key)
     length += 1 + len
+    if (!defined(obj.type)) throw new Error("type is required")
+    var len = encodings.string.encodingLength(obj.type)
+    length += 1 + len
     if (!defined(obj.mirroring)) throw new Error("mirroring is required")
     var len = encodings.bool.encodingLength(obj.mirroring)
     length += 1 + len
@@ -136,8 +139,12 @@ function defineMirrorStatus () {
     buf[offset++] = 10
     encodings.bytes.encode(obj.key, buf, offset)
     offset += encodings.bytes.encode.bytes
+    if (!defined(obj.type)) throw new Error("type is required")
+    buf[offset++] = 18
+    encodings.string.encode(obj.type, buf, offset)
+    offset += encodings.string.encode.bytes
     if (!defined(obj.mirroring)) throw new Error("mirroring is required")
-    buf[offset++] = 16
+    buf[offset++] = 24
     encodings.bool.encode(obj.mirroring, buf, offset)
     offset += encodings.bool.encode.bytes
     encode.bytes = offset - oldOffset
@@ -151,13 +158,15 @@ function defineMirrorStatus () {
     var oldOffset = offset
     var obj = {
       key: null,
+      type: "",
       mirroring: false
     }
     var found0 = false
     var found1 = false
+    var found2 = false
     while (true) {
       if (end <= offset) {
-        if (!found0 || !found1) throw new Error("Decoded message is not valid")
+        if (!found0 || !found1 || !found2) throw new Error("Decoded message is not valid")
         decode.bytes = offset - oldOffset
         return obj
       }
@@ -171,9 +180,14 @@ function defineMirrorStatus () {
         found0 = true
         break
         case 2:
+        obj.type = encodings.string.decode(buf, offset)
+        offset += encodings.string.decode.bytes
+        found1 = true
+        break
+        case 3:
         obj.mirroring = encodings.bool.decode(buf, offset)
         offset += encodings.bool.decode.bytes
-        found1 = true
+        found2 = true
         break
         default:
         offset = skip(prefix & 7, buf, offset)
@@ -192,7 +206,8 @@ function defineListResponse () {
     if (defined(obj.mirroring)) {
       for (var i = 0; i < obj.mirroring.length; i++) {
         if (!defined(obj.mirroring[i])) continue
-        var len = encodings.string.encodingLength(obj.mirroring[i])
+        var len = MirrorStatus.encodingLength(obj.mirroring[i])
+        length += varint.encodingLength(len)
         length += 1 + len
       }
     }
@@ -207,8 +222,10 @@ function defineListResponse () {
       for (var i = 0; i < obj.mirroring.length; i++) {
         if (!defined(obj.mirroring[i])) continue
         buf[offset++] = 10
-        encodings.string.encode(obj.mirroring[i], buf, offset)
-        offset += encodings.string.encode.bytes
+        varint.encode(MirrorStatus.encodingLength(obj.mirroring[i]), buf, offset)
+        offset += varint.encode.bytes
+        MirrorStatus.encode(obj.mirroring[i], buf, offset)
+        offset += MirrorStatus.encode.bytes
       }
     }
     encode.bytes = offset - oldOffset
@@ -233,8 +250,10 @@ function defineListResponse () {
       var tag = prefix >> 3
       switch (tag) {
         case 1:
-        obj.mirroring.push(encodings.string.decode(buf, offset))
-        offset += encodings.string.decode.bytes
+        var len = varint.decode(buf, offset)
+        offset += varint.decode.bytes
+        obj.mirroring.push(MirrorStatus.decode(buf, offset, offset + len))
+        offset += MirrorStatus.decode.bytes
         break
         default:
         offset = skip(prefix & 7, buf, offset)
