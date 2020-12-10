@@ -1,12 +1,12 @@
 # hyperspace-mirroring-service
 A Hyperspace service with a RPC API for mirroring.
 
-### Installation
+## Installation
 ```
 npm i hyperspace-mirroring-service
 ```
 
-### Usage
+## Usage
 This service is meant to run alongside a running Hyperspace server.
 
 With Hyperspace running in a separate terminal:
@@ -22,7 +22,7 @@ The mirror service provides an [HRPC](https://github.com/mafintosh/hrpc) endpoin
 
 Currently it supports mirroring Hyperdrives and individual Hypercores. It doesn't do data-structure detection by looking at Hypercore headers -- you gotta explicitly provide the type.
 
-### API
+## API
 
 #### `await client.mirror(key, type)`
 Start mirroring a Hypercore-based data structure.
@@ -54,5 +54,5 @@ Returns an Array of status objects with the same shape as the `status` return va
 #### `await client.stop()`
 Shut down the server.
 
-### License
+## License
 MIT
