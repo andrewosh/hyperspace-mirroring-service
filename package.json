@@ -1,5 +1,5 @@
 {
-  "name": "hyper-mirroring-service",
+  "name": "hyperspace-mirroring-service",
   "version": "1.0.0",
   "description": "A Hyperspace service with a RPC API for mirroring.",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/andrewosh/hyper-mirroring-service.git"
+    "url": "git+https://github.com/andrewosh/hyperspace-mirroring-service.git"
   },
   "keywords": [
     "hyperspace",
@@ -19,9 +19,9 @@
   "author": "Andrew Osheroff <andrewosh@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/andrewosh/hyper-mirroring-service/issues"
+    "url": "https://github.com/andrewosh/hyperspace-mirroring-service/issues"
   },
-  "homepage": "https://github.com/andrewosh/hyper-mirroring-service#readme",
+  "homepage": "https://github.com/andrewosh/hyperspace-mirroring-service#readme",
   "devDependencies": {
     "standard": "^16.0.3",
     "tape": "^5.0.1"
