@@ -1,6 +1,6 @@
 {
   "name": "hyperspace-mirroring-service",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A Hyperspace service with a RPC API for mirroring.",
   "main": "index.js",
   "scripts": {
