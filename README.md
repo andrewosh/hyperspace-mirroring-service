@@ -22,6 +22,8 @@ The mirror service provides an [HRPC](https://github.com/mafintosh/hrpc) endpoin
 
 Currently it supports mirroring Hyperdrives and individual Hypercores. It doesn't do data-structure detection by looking at Hypercore headers -- you gotta explicitly provide the type.
 
+As of now, Hyperdrive mirroring doesn't handle mounts. Maybe one day
+
 ## API
 
 #### `await client.mirror(key, type)`
