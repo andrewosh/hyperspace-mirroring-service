@@ -33,7 +33,7 @@ module.exports = class HyperspaceMirroringClient {
   }
 
   ready () {
-    return HyperspaceMirroringClient.serverReady(this.opts)
+    return HyperspaceMirroringClient.serverReady({ ...this.opts, noRetry: true })
   }
 
   close () {
