@@ -3,6 +3,9 @@
   "version": "1.0.6",
   "description": "A Hyperspace service with a RPC API for mirroring.",
   "main": "index.js",
+  "bin":{  
+    "hms":"bin/index.js"
+  },
   "scripts": {
     "build": "hrpc rpc/schema.proto --rpc=rpc/index.js --messages=rpc/messages.js",
     "test": "standard && tape test/*.js"
