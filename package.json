@@ -3,6 +3,9 @@
   "version": "1.0.6",
   "description": "A Hyperspace service with a RPC API for mirroring.",
   "main": "index.js",
+  "bin": {
+    "hyperspace-mirror": "./bin/index.js"
+  },
   "scripts": {
     "build": "hrpc rpc/schema.proto --rpc=rpc/index.js --messages=rpc/messages.js",
     "test": "standard && tape test/*.js"
@@ -32,6 +35,7 @@
     "hrpc-runtime": "^2.1.1",
     "hyperbee": "^1.0.1",
     "hyperdrive": "^10.18.0",
+    "minimist": "^1.2.5",
     "nanoresource-promise": "^2.0.0"
   }
 }
