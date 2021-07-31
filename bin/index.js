@@ -48,7 +48,7 @@ async function main () {
   try {
     await s.open()
   } catch (err) {
-    const c = new Client()
+    const c = new Client({ host: argv.host, post: argv.port });
     let mirroring
 
     try {

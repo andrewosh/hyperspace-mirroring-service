@@ -1,7 +1,7 @@
 const os = require('os')
 
 function getSocketPath (name) {
-  name = name || process.env.HYPERSPACE_MIRRORING_SOCKET || 'hyperspace-mirroring'
+  name = (name || process.env.HYPERSPACE_MIRRORING_SOCKET || 'hyperspace') + '-mirroring'
   return os.platform() !== 'win32' ? `${os.tmpdir()}/${name}.sock` : `\\\\.\\pipe\\${name}`
 }
 
