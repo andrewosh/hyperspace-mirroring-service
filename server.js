@@ -23,6 +23,7 @@ module.exports = class MirroringService extends Nanoresource {
 
     this._corestore = null
     this._socketOpts = getNetworkOptions(opts)
+    this._opts = opts
   }
 
   // Nanoresource Methods
@@ -30,13 +31,13 @@ module.exports = class MirroringService extends Nanoresource {
   async _open () {
     let running = false
     try {
-      const client = new Client({ ...this._socketOpts, noRetry: true })
+      const client = new Client({ ...this._opts, noRetry: true })
       await client.ready()
       running = true
     } catch (_) {}
     if (running) throw new Error('A mirroring server is already running on that host/port.')
 
-    this.hsClient = new HyperspaceClient()
+    this.hsClient = new HyperspaceClient(this._opts)
     await this.hsClient.ready()
     this._corestore = this.hsClient.corestore(DB_NAMESPACE)
 
